@@ -1,14 +1,8 @@
-from numpy import insert
-from oauthlib.oauth2 import BackendApplicationClient
-from requests_oauthlib import OAuth2Session
-from requests.auth import HTTPBasicAuth
-import requests
 import pandas as pd
 import psycopg2
 import json
 import pandas.io.sql as sqlio
 pd.set_option('display.max_columns', 500)
-from datetime import datetime, timedelta, date
 import boto3
 import os
 
