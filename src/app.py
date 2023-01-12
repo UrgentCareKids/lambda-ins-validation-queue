@@ -5,6 +5,7 @@ import pandas.io.sql as sqlio
 pd.set_option('display.max_columns', 500)
 import boto3
 import os
+from loguru import logger
 
 
 ssm = boto3.client('ssm',  aws_access_key_id=os.environ['KEY'], aws_secret_access_key=os.environ['SECRET'],  region_name='us-east-2')
@@ -98,6 +99,7 @@ def get_patient_details(queue_id, patient_id):
 #     print('Done', queue_id, payer_code)
 
 def handler(event,context):
+    logger.info('got here', event)
     queue_id = event['queue_id']
     patient_id = event['patient_id']
     print(event)
