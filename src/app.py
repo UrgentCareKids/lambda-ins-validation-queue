@@ -9,15 +9,15 @@ import os
 def handler(event,context):
     queue_id = event['queue_id']
     patient_id = event['patient_id']
-    ssm = boto3.client('ssm',  aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'], aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],  region_name='us-east-2')
+    ssm = boto3.client('ssm',  aws_access_key_id=os.environ['KEY'], aws_secret_access_key=os.environ['SECRET'],  region_name='us-east-2')
     param = ssm.get_parameter(Name='uck-etl-db-prod-masterdata', WithDecryption=True )
     db_request = json.loads(param['Parameter']['Value']) 
 
-    ssm_insval = boto3.client('ssm',  aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'], aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],  region_name='us-east-2')
+    ssm_insval = boto3.client('ssm',  aws_access_key_id=os.environ['KEY'], aws_secret_access_key=os.environ['SECRET'],  region_name='us-east-2')
     param_insval = ssm_insval.get_parameter(Name='uck-etl-db-ins-val-svc-dev', WithDecryption=True )
     db_request_insval = json.loads(param_insval['Parameter']['Value']) 
 
-    ssm_redshift = boto3.client('ssm',  aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'], aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],  region_name='us-east-2')
+    ssm_redshift = boto3.client('ssm',  aws_access_key_id=os.environ['KEY'], aws_secret_access_key=os.environ['SECRET'],  region_name='us-east-2')
     param_redshift = ssm_redshift.get_parameter(Name='uck-etl-wave-hdc', WithDecryption=True )
     db_request_redshift = json.loads(param_redshift['Parameter']['Value']) 
 
@@ -100,120 +100,3 @@ def handler(event,context):
 
 
     get_patient_details(queue_id, patient_id)
-    
-# def employee_list(schema,company):
-#     _targetconnection = redshift_conn()
-#     sql = 'select * from '+schema+'.paylocity_employee where company_id='+company;
-#     employees_df = sqlio.read_sql_query(sql, _targetconnection)
-#     employee_company_dict = dict(zip(employees_df.employee_id , employees_df.company_id))
-#     return employee_company_dict
-
-# def refresh_table(tbl_nm):
-#     _targetconnection = redshift_conn()
-#     cur = _targetconnection.cursor()
-#     cur.execute(f"call {schema}.refresh_{tbl_nm}();")
-#     _targetconnection.commit()
-
-# def clear_table(tbl_nm):
-#     _targetconnection = redshift_conn()
-#     cur = _targetconnection.cursor()
-#     cur.execute(f"delete from {schema}.{tbl_nm};")
-#     _targetconnection.commit()
-
-# def log(message, status):
-#     _targetconnection = redshift_conn()
-#     cur = _targetconnection.cursor()
-#     cur.execute(f"insert into {schema}.paylocity_log(message, status) values('{message}', '{status}');")
-#     _targetconnection.commit()
-
-
-# def rate_counter():
-#     ...
-
-
-
-# # json loads
-
-# def paylocity_company_codes_json():
-#     clear_table('paylocity_company_codes_json')
-#     for compval in company_id:       
-#         token = token_autentication()
-#         headers=  {'Authorization': 'Bearer ' + str(token['access_token'])}
-#         company_location_request = requests.get('https://api.paylocity.com/api/v2/companies/'+compval+'/codes/costCenter1',headers=headers)
-#         company_location_response = company_location_request.json()
-#         insert_into_redshift('paylocity_company_codes_json',company_location_response, compval)
-
-# #
-# def paylocity_employee_json():
-#     clear_table('paylocity_employee_json')
-#     token = token_autentication()
-#     for company in company_id:
-#         headers=  {'Authorization': 'Bearer ' + str(token['access_token'])}
-#         headers_request = requests.get('https://api.paylocity.com/api/v2/companies/'+company+'/employees', headers=headers)
-#         response_headers = headers_request.headers
-#         page_size = response_headers['X-Pcty-Total-Count']
-#         employees_request = requests.get('https://api.paylocity.com/api/v2/companies/'+company+'/employees?pagesize='+page_size, headers=headers)
-#         employees_response = employees_request.json()
-#         insert_into_redshift('paylocity_employee_json',employees_response, company)
-
-# def paylocity_employee_details_json():
-#     clear_table('paylocity_employee_details_json')
-#     for company in company_id:
-#         employee_company_dict = employee_list(schema,company)
-#         token = token_autentication()
-#         for employee_id,compval in employee_company_dict.items():
-#             print('loading ' + employee_id)
-#             headers=  {'Authorization': 'Bearer ' + str(token['access_token'])}
-#             employee_details_request = requests.get('https://api.paylocity.com/api/v2/companies/' +compval + '/employees/' +employee_id, headers=headers)
-#             employee_details_response = employee_details_request.json()
-#             insert_into_redshift('paylocity_employee_details_json',employee_details_response, compval, employee_id)
-
-# #
-# def paylocity_employee_paystatement_json():
-#     clear_table('paylocity_employee_paystatement_json')
-#     for company in company_id:
-#         employee_company_dict = employee_list(schema,company)
-#         token = token_autentication()
-#         for employee_id,val in employee_company_dict.items():
-#                 headers=  {'Authorization': 'Bearer ' + str(token['access_token'])}
-#                 headers_request = requests.get('https://api.paylocity.com/api/v2/companies/'+val+'/employees/'+employee_id+'/paystatement/summary/'+year, headers=headers)
-#                 response_headers = headers_request.headers
-#                 page_size = response_headers['x-pcty-total-count']
-#                 if(int(page_size) > 0):                
-#                     print('loading ' + employee_id)
-#                     pay_summary_request = requests.get('https://api.paylocity.com/api/v2/companies/'+val+'/employees/'+employee_id+'/paystatement/summary/'+str(year)+'?pagesize='+page_size, headers=headers)
-#                     pay_summary_response = pay_summary_request.json()
-#                     insert_into_redshift('paylocity_employee_paystatement_json',pay_summary_response, company, employee_id)
-
-
-# # get_employee_details(schema)
-
-# def load_json_tables():
-#     try:
-#         log('process kicked off', 'info')
-#         #phase 1 json load
-#         paylocity_company_codes_json()
-#         log('paylocity_company_codes_json - completed', 'info')
-#         paylocity_employee_json()
-#         log('paylocity_employee_json - completed', 'info')
-#         #parsers phase1:
-#         refresh_table('paylocity_company_codes')
-#         log('refresh paylocity_company_codes - completed', 'info')
-#         refresh_table('paylocity_employee')
-#         log('refresh paylocity_employee - completed', 'info')
-
-#         paylocity_employee_paystatement_json()
-#         log('paylocity_employee_paystatement_json - completed', 'info')
-#         paylocity_employee_details_json()
-#         log('paylocity_employee_details_json - completed', 'info')
-#         refresh_table('paylocity_employee_paystatement')
-#         log('refresh paylocity_employee_paystatement - completed', 'info')
-#         refresh_table('paylocity_employee_details')
-#         log('refresh paylocity_employee_details - completed', 'info')
-#         log('process completed - success', 'info')
-#     except Exception as e:
-#         print(e)
-#         log(e, 'error')
-#     #these cant' run until the first 1 (employee) is refreshed
-
-# load_json_tables()
