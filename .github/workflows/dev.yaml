@@ -40,11 +40,11 @@ jobs:
         run: docker push $ECR_REGISTRY/gsh/ins-validation-queue:dev
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
-      # - name: Update AWS dev lambda to point to new image
-      #   run: |
-      #     image_sha=`docker images --digests | grep ins-validation-queue | grep dev | awk '{print $3}' | grep sha256`
-      #     echo "Pointing lambda to new sha: ${image_sha}"
-      #     aws lambda update-function-code --function-name ins-validation-queue-dev \
-      #     --image-uri $ECR_REGISTRY/gsh/ins-validation-queue@${image_sha} 2>&1 > /dev/null
-      #   env:
-      #     ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
+      - name: Update AWS dev lambda to point to new image
+        run: |
+          image_sha=`docker images --digests | grep ins-validation-queue | grep dev | awk '{print $3}' | grep sha256`
+          echo "Pointing lambda to new sha: ${image_sha}"
+          aws lambda update-function-code --function-name ins-validation-queue-dev \
+          --image-uri $ECR_REGISTRY/gsh/ins-validation-queue@${image_sha} 2>&1 > /dev/null
+        env:
+          ECR_REGISTRY: ${{ secrets.AWS_ECR_REGISTRY }}
