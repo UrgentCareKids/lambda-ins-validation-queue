@@ -12,7 +12,7 @@ def handler(event,context):
     queue_id = event['queue_id']
     patient_id = event['patient_id']
     print(event)
-    get_patient_details(queue_id, patient_id)
+    insert_into_insval(queue_id, get_patient_details(patient_id))
 
 ssm = boto3.client('ssm',  aws_access_key_id=os.environ['KEY'], aws_secret_access_key=os.environ['SECRET'],  region_name='us-east-2')
 param = ssm.get_parameter(Name='uck-etl-db-prod-masterdata', WithDecryption=True )
@@ -58,7 +58,7 @@ def insval_conn():
 #         patient_id = df.iloc[i,1]
 #         get_patient_details(queue_id, patient_id)
 
-def get_patient_details(queue_id, patient_id):
+def get_patient_details(patient_id):
     _targetconnection = masterdata_conn()
     cur = _targetconnection.cursor()
     print('got here')
@@ -74,13 +74,7 @@ def get_patient_details(queue_id, patient_id):
             request_type = 'DISCO'
         else:
             request_type = 'ELIG'
-    _targetconnection = insval_conn()
-    cur = _targetconnection.cursor()
-    print(request_type, payer_code)
-    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
-    cur.execute(update_query,)
-    _targetconnection.commit()
-    print('Done', queue_id, payer_code)
+        return payer_code, request_type
 
 
 # def map_ins(queue_id, ins_id):
@@ -99,12 +93,12 @@ def get_patient_details(queue_id, patient_id):
 #     print('payer_code: ',payer_code)
 #     insert_into_insval(queue_id,payer_code, request_type)
 
-# def insert_into_insval(queue_id, payer_code, request_type):
-#     _targetconnection = insval_conn()
-#     cur = _targetconnection.cursor()
-#     print(request_type, payer_code)
-#     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
-#     cur.execute(update_query,)
-#     _targetconnection.commit()
-#     print('Done', queue_id, payer_code)
+def insert_into_insval(queue_id, payer_code, request_type):
+    _targetconnection = insval_conn()
+    cur = _targetconnection.cursor()
+    print(request_type, payer_code)
+    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
+    cur.execute(update_query,)
+    _targetconnection.commit()
+    print('Done', queue_id, payer_code)
 
