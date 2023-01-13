@@ -69,17 +69,14 @@ def get_patient_details(queue_id, patient_id):
     print(df)
     payer_code = ''
     request_type = ''
-    print('preloop:', payer_code)
-    for i in range(len(df)): 
-        print('in loop:',df.iloc[i,0])
-        ins_id = df.iloc[i,0]
-        payer_code = df.iloc[i,1]
-        if payer_code == None or '': 
-            request_type = 'DISCO'
-            return payer_code,request_type
-        else:
+    if df.empty == True:
+        request_type = 'DISCO'
+    else: 
+        for i in range(len(df)): 
+            print('in loop:',df.iloc[i,0])
+            ins_id = df.iloc[i,0]
+            payer_code = df.iloc[i,1]
             request_type = 'ELIG'
-            return payer_code, request_type
     print('request:',request_type)
     _targetconnection = insval_conn()
     cur = _targetconnection.cursor()
