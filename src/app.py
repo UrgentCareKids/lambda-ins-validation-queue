@@ -8,9 +8,10 @@ import os
 from loguru import logger
 
 def handler(event,context):
+    body = event['Records'][0]['Sns']['Message']
     logger.info('got here', event)
-    queue_id = event['queue_id']
-    patient_id = event['patient_id']
+    queue_id = body['queue_id']
+    patient_id = body['patient_id']
     print(event)
     get_patient_details(queue_id, patient_id)
 
