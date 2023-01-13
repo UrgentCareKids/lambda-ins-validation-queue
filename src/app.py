@@ -68,6 +68,7 @@ def get_patient_details(queue_id, patient_id):
     df = pd.DataFrame(ins_id)
     payer_code = ''
     request_type = ''
+    print('preloop:', payer_code)
     for i in range(len(df)): 
         print(df.iloc[i,0])
         ins_id = df.iloc[i,0]
