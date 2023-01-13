@@ -44,14 +44,6 @@ def insval_conn():
     conn_insval = psycopg2.connect(host=hostname,user=dbusername,port=portno,password=dbpassword,dbname=dbname)
     return conn_insval
 
-def redshift_conn():
-    hostname = db_request_redshift['host']
-    portno = db_request_redshift['port']
-    dbname = db_request_redshift['database']
-    dbusername = db_request_redshift['user']
-    dbpassword = db_request_redshift['password']
-    conn = psycopg2.connect(host=hostname,user=dbusername,port=portno,password=dbpassword,dbname=dbname)
-    return conn
 
 # def get_patient(queue_id, patient_id):
 #     _targetconnection = insval_conn()
@@ -70,14 +62,19 @@ def get_patient_details(queue_id, patient_id):
     _targetconnection = masterdata_conn()
     cur = _targetconnection.cursor()
     print('got here')
-    select_query = f"select primary_ins_id from mat_tmp_fast_demographics where pond_id = '{patient_id}'"
+    select_query = f"select mtfd.primary_ins_id, ic.ext_id from mat_tmp_fast_demographics mtfd left join public.ins_cx ic on primary_ins_id = ic.pri_ins_id where mtfd.pond_id = '{patient_id}' mtfd.primary_ins_id ilike ic.pri_ins_id  and ic.ext_source = 'WAVE'"
     cur.execute(select_query,)
     ins_id = cur.fetchall()
     df = pd.DataFrame(ins_id)
     for i in range(len(df)): 
         print(df.iloc[i,0])
         ins_id = df.iloc[i,0]
-        # map_ins(queue_id,ins_id)
+        payer_code = df.iloc[i,1]
+        if payer_code == None or '': 
+            request_type = 'DISCO'
+        else:
+            request_type = 'ELIG'
+        insert_into_insval(queue_id,payer_code, request_type)
 
 
 # def map_ins(queue_id, ins_id):
@@ -96,11 +93,11 @@ def get_patient_details(queue_id, patient_id):
 #     print('payer_code: ',payer_code)
 #     insert_into_insval(queue_id,payer_code, request_type)
 
-# def insert_into_insval(queue_id, payer_code, request_type):
-#     _targetconnection = insval_conn()
-#     cur = _targetconnection.cursor()
-#     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
-#     cur.execute(update_query,)
-#     _targetconnection.commit()
-#     print('Done', queue_id, payer_code)
+def insert_into_insval(queue_id, payer_code, request_type):
+    _targetconnection = insval_conn()
+    cur = _targetconnection.cursor()
+    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
+    cur.execute(update_query,)
+    _targetconnection.commit()
+    print('Done', queue_id, payer_code)
 
