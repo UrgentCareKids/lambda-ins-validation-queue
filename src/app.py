@@ -66,6 +66,7 @@ def get_patient_details(queue_id, patient_id):
     cur.execute(select_query,)
     ins_id = cur.fetchall()
     df = pd.DataFrame(ins_id)
+    print(df)
     payer_code = ''
     request_type = ''
     print('preloop:', payer_code)
