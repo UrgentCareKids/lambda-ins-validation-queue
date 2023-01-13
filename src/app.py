@@ -80,7 +80,7 @@ def get_patient_details(queue_id, patient_id):
     _targetconnection = insval_conn()
     cur = _targetconnection.cursor()
     print(request_type, payer_code)
-    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}', where queue_id = '{queue_id}'"
+    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
     print('Done', queue_id, payer_code)
