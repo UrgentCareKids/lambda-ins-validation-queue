@@ -10,6 +10,7 @@ from loguru import logger
 def handler(event,context):
     body = event['Records'][0]['Sns']['Message']
     logger.info('got here', event)
+    body = json.loads(body)
     queue_id = body['queue_id']
     patient_id = body['patient_id']
     print(event)
