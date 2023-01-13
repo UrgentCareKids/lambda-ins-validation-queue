@@ -76,14 +76,14 @@ def get_patient_details(queue_id, patient_id):
             request_type = 'DISCO'
         else:
             request_type = 'ELIG'
-    print(request_type)
-    _targetconnection = insval_conn()
-    cur = _targetconnection.cursor()
-    print(request_type, payer_code)
-    update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
-    cur.execute(update_query,)
-    _targetconnection.commit()
-    print('Done', queue_id, payer_code)
+        print('request:',request_type)
+        _targetconnection = insval_conn()
+        cur = _targetconnection.cursor()
+        print(request_type, payer_code)
+        update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
+        cur.execute(update_query,)
+        _targetconnection.commit()
+        print('Done', queue_id, payer_code)
 
 
 # def map_ins(queue_id, ins_id):
