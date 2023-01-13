@@ -71,7 +71,7 @@ def get_patient_details(queue_id, patient_id):
     request_type = ''
     print('preloop:', payer_code)
     for i in range(len(df)): 
-        print(df.iloc[i,0])
+        print('in loop:',df.iloc[i,0])
         ins_id = df.iloc[i,0]
         payer_code = df.iloc[i,1]
         if payer_code == None or '': 
