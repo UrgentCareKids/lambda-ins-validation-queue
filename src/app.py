@@ -63,25 +63,46 @@ def insval_conn():
 def get_patient_details(queue_id, patient_id):
     _targetconnection = masterdata_conn()
     cur = _targetconnection.cursor()
-    select_query = f"select mtfd.primary_ins_id, ic.ext_id from mat_tmp_fast_demographics mtfd left join public.ins_cx ic on mtfd.primary_ins_id::bigint = ic.pri_ins_id where mtfd.pond_id = '{patient_id}' and mtfd.primary_ins_id::bigint = ic.pri_ins_id  and ic.ext_source = 'WAVE'"
+    select_query = f"select mtfd.primary_ins_id, ic.ext_id, mtfd.patient_first_name, mtfd.patient_middle_name,mtfd.patient_last_name,mtfd.patient_dob, mtfd.primary_ins_ph_first_name,mtfd.primary_ins_ph_middle_name,mtfd.primary_ins_ph_last_name,mtfd.primary_ins_ph_dob from mat_tmp_fast_demographics mtfd left join public.ins_cx ic on mtfd.primary_ins_id::bigint = ic.pri_ins_id where mtfd.pond_id = '{patient_id}' and mtfd.primary_ins_id::bigint = ic.pri_ins_id  and ic.ext_source = 'WAVE'"
     cur.execute(select_query,)
     ins_id = cur.fetchall()
     df = pd.DataFrame(ins_id)
     payer_code = ''
     request_type = ''
+    patient_first_name = ''
+    patient_middle_name = ''
+    patient_last_name = ''
+    patient_dob = ''
+    primary_ins_ph_first_name = ''
+    primary_ins_ph_middle_name = ''
+    primary_ins_ph_last_name = ''
+    primary_ins_ph_dob = ''
     if df.empty == True:
         request_type = 'DISCO'
-    else: 
-        for i in range(len(df)): 
-            ins_id = df.iloc[i,0]
-            payer_code = df.iloc[i,1]
-            request_type = 'ELIG'
+    else:
+        request_type = 'ELIG'
+        payer_code = df.iloc[i,1]
+    for i in range(len(df)): 
+        ins_id = df.iloc[i,0]
+        patient_first_name = df.iloc[i,2]
+        patient_middle_name = df.iloc[i,3]
+        patient_last_name = df.iloc[i,4]
+        patient_dob = df.iloc[i,5]
+        primary_ins_ph_first_name = df.iloc[i,6]
+        primary_ins_ph_middle_name = df.iloc[i,7]
+        primary_ins_ph_last_name = df.iloc[i,8]
+        primary_ins_ph_dob = df.iloc[i,9]
+        request_type = 'ELIG'
     _targetconnection = insval_conn()
     cur = _targetconnection.cursor()
     print(request_type, payer_code)
     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
+    insert_query= f"INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob, create_ts, update_ts)VALUES('{queue_id}','{patient_id}','{patient_first_name}',{patient_middle_name}',{patient_last_name}','{patient_dob}','{primary_ins_ph_first_name}','{primary_ins_ph_middle_name}','{primary_ins_ph_middle_name}',{primary_ins_ph_last_name}','{primary_ins_ph_dob}');"
+    cur.execute(insert_query,)
+    _targetconnection.commit()
+    _targetconnection.close()
     print('DONE', request_type, patient_id)
 
 
