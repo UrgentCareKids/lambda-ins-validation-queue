@@ -63,7 +63,7 @@ def insval_conn():
 def get_patient_details(queue_id, patient_id):
     _targetconnection = masterdata_conn()
     cur = _targetconnection.cursor()
-    select_query = f"select mtfd.primary_ins_id, ic.ext_id left join public.ins_cx ic on mtfd.primary_ins_id::bigint = ic.pri_ins_id where mtfd.pond_id = '{patient_id}' and mtfd.primary_ins_id::bigint = ic.pri_ins_id  and ic.ext_source = 'WAVE'"
+    select_query = f"select mtfd.primary_ins_id, ic.ext_id from mat_tmp_fast_demographics left join public.ins_cx ic on mtfd.primary_ins_id::bigint = ic.pri_ins_id where mtfd.pond_id = '{patient_id}' and mtfd.primary_ins_id::bigint = ic.pri_ins_id  and ic.ext_source = 'WAVE'"
     cur.execute(select_query,)
     ins_id = cur.fetchall()
     df = pd.DataFrame(ins_id)
