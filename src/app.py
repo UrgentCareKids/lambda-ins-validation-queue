@@ -102,7 +102,7 @@ def get_patient_details(queue_id, patient_id):
     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
-    insert_query= f"with insert_cte as (select '{queue_id}', '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None'), nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob) select * from insert_cte; "        
+    insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob) select * from insert_cte; "        
     cur.execute(insert_query,)
     _targetconnection.commit()
     _targetconnection.close()
