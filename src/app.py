@@ -83,7 +83,7 @@ def get_patient_details(queue_id, patient_id):
         for i in range(len(df)):
             request_type = 'ELIG'
             payer_code = df.iloc[i,1]
-    demo_select = f"mtfd.patient_first_name, mtfd.patient_middle_name,mtfd.patient_last_name,mtfd.patient_dob, mtfd.primary_ins_ph_first_name,mtfd.primary_ins_ph_middle_name,mtfd.primary_ins_ph_last_name,mtfd.primary_ins_ph_dob from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
+    demo_select = f"select mtfd.patient_first_name, mtfd.patient_middle_name, mtfd.patient_last_name, mtfd.patient_dob, mtfd.primary_ins_ph_first_name, mtfd.primary_ins_ph_middle_name, mtfd.primary_ins_ph_last_name, mtfd.primary_ins_ph_dob from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
     cur.execute(demo_select,)
     demo = cur.fetchall()
     df = pd.DataFrame(demo)
