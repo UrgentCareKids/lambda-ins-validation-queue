@@ -103,7 +103,7 @@ def get_patient_details(queue_id, patient_id):
     cur.execute(update_query,)
     _targetconnection.commit()
     insert_query= "INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob)VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);", (queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob)
-    cur.execute(insert_query,)
+    cur.execute(insert_query)
     _targetconnection.commit()
     _targetconnection.close()
     print('DONE', request_type, patient_id)
