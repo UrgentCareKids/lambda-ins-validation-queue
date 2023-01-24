@@ -47,18 +47,6 @@ def insval_conn():
     return conn_insval
 
 
-# def get_patient(queue_id, patient_id):
-#     _targetconnection = insval_conn()
-#     cur = _targetconnection.cursor()
-#     select_query = f'select queue_id, patient_id from public.insval_queue where task_available = true'
-#     cur.execute(select_query,)
-#     patients = cur.fetchall()
-#     df = pd.DataFrame(patients)
-#     for i in range(len(df)): 
-#         print(df.iloc[i,0], df.iloc[i,1])
-#         queue_id = df.iloc[i,0]
-#         patient_id = df.iloc[i,1]
-#         get_patient_details(queue_id, patient_id)
 
 def get_patient_details(queue_id, patient_id):
     _targetconnection = masterdata_conn()
@@ -83,7 +71,7 @@ def get_patient_details(queue_id, patient_id):
         for i in range(len(df)):
             request_type = 'ELIG'
             payer_code = df.iloc[i,1]
-    demo_select = f"select mtfd.patient_first_name, mtfd.patient_middle_name, mtfd.patient_last_name, mtfd.patient_dob::date, mtfd.primary_ins_ph_first_name, mtfd.primary_ins_ph_middle_name, mtfd.primary_ins_ph_last_name, mtfd.primary_ins_ph_dob::date from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
+    demo_select = f"select mtfd.patient_first_name, mtfd.patient_middle_name, mtfd.patient_last_name, mtfd.patient_dob::date, mtfd.primary_ins_ph_first_name, mtfd.primary_ins_ph_middle_name, mtfd.primary_ins_ph_last_name, mtfd.primary_ins_ph_dob::date, mtfd.patient_address, mtfd.patient_address2, mtfd.patient_address_city, mtfd.patient_address_state, patient_address_zip from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
     cur.execute(demo_select,)
     demo = cur.fetchall()
     df = pd.DataFrame(demo)
@@ -96,13 +84,18 @@ def get_patient_details(queue_id, patient_id):
         primary_ins_ph_middle_name = df.iloc[i,5]
         primary_ins_ph_last_name = df.iloc[i,6]
         primary_ins_ph_dob = df.iloc[i,7]
+        patient_address = df.iloc[i,8]
+        patient_address2 = df.iloc[i,9]
+        patient_address_city = df.iloc[i,10]
+        patient_address_state = df.iloc[i,11]
+        patient_address_zip = df.iloc[i,12]
     _targetconnection = insval_conn()
     cur = _targetconnection.cursor()
     print(request_type, payer_code)
     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
-    insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob) select * from insert_cte; "        
+    insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date, nullif('{patient_address}','None'), nullif('{patient_address2}','None'), nullif('{patient_address_city}','None'), nullif('{patient_address_state}','None'), nullif('{patient_address_zip}','None')) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob, patient_address1, patient_address2, patient_address_city, patient_address_state, patient_address_zip) select * from insert_cte; "        
     cur.execute(insert_query,)
     _targetconnection.commit()
     proc_call= f"call public.insval_distributor('{queue_id}');"
