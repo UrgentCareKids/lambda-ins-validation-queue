@@ -99,6 +99,7 @@ def get_patient_details(queue_id, patient_id):
     cur.execute(insert_query,)
     _targetconnection.commit()
     proc_call= f"call public.insval_distributor('{queue_id}');"
+    print('proce call: ', queue_id)
     cur.execute(proc_call,)
     _targetconnection.commit()
     _targetconnection.close()
