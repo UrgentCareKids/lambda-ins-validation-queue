@@ -65,6 +65,7 @@ def get_patient_details(queue_id, patient_id):
     primary_ins_ph_middle_name = ''
     primary_ins_ph_last_name = ''
     primary_ins_ph_dob = ''
+    patient_address = ''
     if df.empty == True:
         request_type = 'DISCO'
     else:
