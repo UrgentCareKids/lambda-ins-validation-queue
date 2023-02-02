@@ -100,12 +100,11 @@ def get_patient_details(queue_id, patient_id):
     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
-    print(insert_query)
     insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date, nullif('{patient_address}','None'), nullif('{patient_address2}','None'), nullif('{patient_address_city}','None'), nullif('{patient_address_state}','None'), nullif('{patient_address_zip}','None')) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob, patient_address1, patient_address2, patient_address_city, patient_address_state, patient_address_zip) select * from insert_cte; "        
     cur.execute(insert_query,)
     _targetconnection.commit()
     proc_call= f"call public.insval_distributor('{queue_id}');"
-    print('proce call: ', queue_id)
+    print('proc call: ', queue_id)
     cur.execute(proc_call,)
     _targetconnection.commit()
     _targetconnection.close()
