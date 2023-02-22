@@ -76,7 +76,7 @@ def get_patient_details(queue_id, patient_id):
         for i in range(len(df)):
             request_type = 'ELIG'
             payer_code = df.iloc[i,1]
-    demo_select = f"select mtfd.patient_first_name, mtfd.patient_middle_name, mtfd.patient_last_name, mtfd.patient_dob::date, mtfd.primary_ins_ph_first_name, mtfd.primary_ins_ph_middle_name, mtfd.primary_ins_ph_last_name, mtfd.primary_ins_ph_dob::date, mtfd.patient_address, mtfd.patient_address2, mtfd.patient_address_city, mtfd.patient_address_state, patient_address_zip from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
+    demo_select = f"select mtfd.patient_first_name, mtfd.patient_middle_name, mtfd.patient_last_name, mtfd.patient_dob::date, mtfd.primary_ins_ph_first_name, mtfd.primary_ins_ph_middle_name, mtfd.primary_ins_ph_last_name, mtfd.primary_ins_ph_dob::date, mtfd.patient_address, mtfd.patient_address2, mtfd.patient_address_city, mtfd.patient_address_state, mtfd.patient_address_zip, mtfd.pg_first_name, mtfd.pg_middle_name, mtfd.pg_last_name, mtfd.pg_dob ,pg_address, mtfd.pg_address2, mtfd.pg_address_city, mtfd.pg_address_state, mtfd.pg_address_zip, mtfd.guarantor_first_name, mtfd.guarantor_middle_name, mtfd.guarantor_last_name, mtfd.guarantor_dob, mtfd.guarantor_address, mtfd.guarantor_address2, mtfd.guarantor_address_city, mtfd.guarantor_address_state, mtfd.guarantor_address_zip from mat_tmp_fast_demographics mtfd where mtfd.pond_id = '{patient_id}'"
     cur.execute(demo_select,)
     demo = cur.fetchall()
     df = pd.DataFrame(demo)
@@ -94,13 +94,32 @@ def get_patient_details(queue_id, patient_id):
         patient_address_city = df.iloc[i,10]
         patient_address_state = df.iloc[i,11]
         patient_address_zip = df.iloc[i,12]
+        pg_first_name  = df.iloc[i,13]
+        pg_middle_name  = df.iloc[i,14]
+        pg_last_name = df.iloc[i,15]
+        pg_dob = df.iloc[i,16]	 
+        pg_address = df.iloc[i,17]			 
+        pg_address2 = df.iloc[i,18]
+        pg_address_city = df.iloc[i,19]
+        pg_address_state  = df.iloc[i,20]
+        pg_address_zip = df.iloc[i,21]
+        guarantor_first_name = df.iloc[i,22]
+        guarantor_middle_name = df.iloc[i,23]
+        guarantor_last_name = df.iloc[i,24]
+        guarantor_dob = df.iloc[i,25]
+        guarantor_address = df.iloc[i,26]
+        guarantor_address2 = df.iloc[i,27]
+        guarantor_address_city = df.iloc[i,28]
+        guarantor_address_state = df.iloc[i,29]
+        guarantor_address_zip = df.iloc[i,30]
+        
     _targetconnection = insval_conn()
     cur = _targetconnection.cursor()
     print(request_type, payer_code)
     update_query = f"update public.insval_queue set payer_code = '{payer_code}', request_type = '{request_type}' where queue_id = '{queue_id}'"
     cur.execute(update_query,)
     _targetconnection.commit()
-    insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date, nullif('{patient_address}','None'), nullif('{patient_address2}','None'), nullif('{patient_address_city}','None'), nullif('{patient_address_state}','None'), nullif('{patient_address_zip}','None')) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob, patient_address1, patient_address2, patient_address_city, patient_address_state, patient_address_zip) select * from insert_cte; "        
+    insert_query= f"with insert_cte as (select '{queue_id}'::int, '{patient_id}', nullif('{patient_first_name}','None'), nullif('{patient_middle_name}','None'), nullif('{patient_last_name}','None'), nullif('{patient_dob}','None')::date, nullif('{primary_ins_ph_first_name}','None'), nullif('{primary_ins_ph_middle_name}','None'), nullif('{primary_ins_ph_last_name}','None'), nullif('{primary_ins_ph_dob}','None')::date, nullif('{patient_address}','None'), nullif('{patient_address2}','None'), nullif('{patient_address_city}','None'), nullif('{patient_address_state}','None'), nullif('{patient_address_zip}','None'), nullif('{pg_first_name}','None'), nullif('{pg_middle_name}','None'), nullif('{pg_last_name}','None'), nullif('{pg_dob}','None')::date, nullif('{pg_address}','None'), nullif('{pg_address2}','None'), nullif('{pg_address_city}','None'), nullif('{pg_address_state}','None'), nullif('{pg_address_zip}','None'), nullif('{guarantor_first_name}','None'), nullif('{guarantor_middle_name}','None'), nullif('{guarantor_last_name}','None'), nullif('{guarantor_dob}','None')::date, nullif('{guarantor_address}','None'),  nullif('{guarantor_address2}','None'), nullif('{guarantor_address_city}','None'), nullif('{guarantor_address_state}','None'), nullif('{guarantor_address_zip}','None')  ) INSERT INTO public.insval_demographics(queue_id, patient_id, patient_first_name, patient_middle_name, patient_last_name, patient_dob, primary_ins_ph_first_name, primary_ins_ph_middle_name, primary_ins_ph_last_name, primary_ins_ph_dob, patient_address1, patient_address2, patient_address_city, patient_address_state, patient_address_zip, pg_first_name, pg_middle_name, pg_last_name, pg_dob ,pg_address, pg_address2, pg_address_city, pg_address_state, pg_address_zip, guarantor_first_name, guarantor_middle_name, guarantor_last_name, guarantor_dob, guarantor_address, guarantor_address2, guarantor_address_city, guarantor_address_state, guarantor_address_zip) select * from insert_cte; "
     cur.execute(insert_query,)
     _targetconnection.commit()
     proc_call= f"call public.insval_distributor('{queue_id}');"
